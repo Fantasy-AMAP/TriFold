@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+    content="TriFold: Folding Irregular 3D Gaussians into Structured Latents for 3D Scene Generation">
+  <meta name="keywords" content="TriFold, 3D Gaussian Splatting, VAE, Triplane, Scene Generation, Flow Matching">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- More research下拉菜单 开始 -->
+  <div
+    style="width:100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; position: relative; z-index: 100;">
+    <div style="position: relative; display:inline-block;">
+      <button id="moreResearchBtn"
+        style="background-color: #fff; color: #333; padding: 10px 24px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+        More research ▼
+      </button>
+      <div id="moreResearchDropdown"
+        style="display: none; position: absolute; left: 0; top: 110%; background: #fff; border: 1px solid #ccc; border-radius: 5px; box-shadow:0 6px 12px rgba(0,0,0,0.1); min-width: 180px; z-index: 999;">
+      </div>
+    </div>
+  </div>
+  <!-- More research下拉菜单 结束 -->
+
+  <title>TriFold: Folding Irregular 3D Gaussians into Structured Latents for 3D Scene Generation</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" type="image/png" href="./assets/icon.png">
+  <link rel="apple-touch-icon" href="./assets/icon.png">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js?v=3"></script>
+
+  <style>
+    .figure-img {
+      border: 1px solid #e9e3d6;
+      border-radius: 6px;
+      background: #fff;
+      max-width: 100%;
+    }
+
+    .figure-caption {
+      margin: 0.75rem auto 0;
+      font-size: 0.95rem;
+      color: #6b6258;
+      max-width: 900px;
+    }
+
+    table.results {
+      margin: 0 auto;
+    }
+
+    table.results th,
+    table.results td {
+      text-align: center;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="hero-transparent hero-landing">
+    <div class="container is-max-desktop hero-shell">
+      <div class="hero-stack has-text-centered">
+        <div
+          style="display:flex;align-items:center;justify-content:center;gap:1.25rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+          <img src="./assets/icon.png" alt="TriFold icon"
+            style="width:72px;height:72px;border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,0.18);margin:0;">
+          <h1 class="title is-1 publication-title hero-title" style="margin:0;">TriFold</h1>
+        </div>
+        <p class="subtitle hero-subtitle">Folding Irregular 3D Gaussians into Structured Latents for 3D Scene
+          Generation</p>
+
+        <div class="publication-authors">
+          <div class="hero-authors">
+            <div class="hero-author-row">
+              <span class="author-block">Yun Wang<sup>2,*,&sect;</sup></span>
+              <span class="author-block">Chiyu Wang<sup>1,*,&dagger;</sup></span>
+              <span class="author-block">Fan Jiang<sup>1,*,&Dagger;</sup></span>
+              <span class="author-block">Ziyu Zhu<sup>1</sup></span>
+            </div>
+            <div class="hero-author-row">
+              <span class="author-block">Zhaoxu Sun<sup>1</sup></span>
+              <span class="author-block">Guangchi Fang<sup>3</sup></span>
+              <span class="author-block">Mu Xu<sup>1</sup></span>
+              <span class="author-block">Dapeng Wu<sup>2</sup></span>
+            </div>
+          </div>
+          <div class="hero-affiliations">
+            <span><sup>1</sup> AMAP, Alibaba Group</span>
+            <span><sup>2</sup> City University of Hong Kong</span>
+            <span><sup>3</sup> Hong Kong Polytechnic University</span>
+          </div>
+          <div class="hero-notes">
+            <span><sup>*</sup> Equal contribution</span>
+            <span><sup>&dagger;</sup> Project leader</span>
+            <span><sup>&Dagger;</sup> Corresponding author</span>
+            <span><sup>&sect;</sup> Work done during internship at AMAP, Alibaba Group</span>
+          </div>
+        </div>
+
+        <div class="publication-links">
+          <!-- PDF Link. -->
+          <span class="link-block">
+            <a href="./assets/paper.pdf" class="external-link button is-normal is-rounded is-dark">
+              <span class="icon">
+                <i class="fas fa-file-pdf"></i>
+              </span>
+              <span>Paper</span>
+            </a>
+          </span>
+          <!-- Code Link. -->
+          <span class="link-block">
+            <a href="https://github.com/Fantasy-AMAP/TriFold" class="external-link button is-normal is-rounded is-dark">
+              <span class="icon">
+                <i class="fab fa-github"></i>
+              </span>
+              <span>Code</span>
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section section-intro">
+    <div class="container is-max-desktop">
+      <div class="has-text-centered">
+        <img src="./assets/fig1_teaser.png" class="figure-img" alt="TriFold overview">
+        <p class="figure-caption">
+          TriFold encodes variable-cardinality 3D Gaussian scenes into fixed-layout triplane latents that jointly
+          represent geometry and appearance, and decodes content-adaptive Gaussian sets with variable local densities.
+        </p>
+      </div>
+      <div class="columns is-vcentered columns-offset-lg">
+        <div class="column is-full-width">
+          <div class="content has-text-justified">
+            <p>
+              Recent progress in 3D generation has motivated growing interest in compact generative representations of
+              complex 3D scenes. For native 3D Gaussian scenes, however, learning such representations remains
+              challenging due to widely varying primitive counts, nonuniform spatial density, and differences in
+              geometry and appearance even among spatially neighboring primitives. In this work, we introduce
+              <b>TriFold</b>, a native 3D Gaussian VAE that encodes Gaussian scenes into a fixed-layout triplane
+              latent and jointly reconstructs their geometry and appearance. The key insight is to impose structural
+              regularity on the latent space while preserving the spatial adaptivity of the underlying Gaussians.
+              During encoding, we use cell-wise learned queries to aggregate projected Gaussians into multiple slots
+              per cell, reducing the information loss caused by single-feature pooling. During decoding, occupancy
+              prediction identifies active regions, where query-based set prediction and candidate selection
+              reconstruct local Gaussian sets with spatially varying primitive counts. Building on this
+              representation, we train a latent flow-matching model for conditional scene-level 3DGS generation,
+              enabling point-cloud-conditioned synthesis and single-image-conditioned amodal generation. Experiments
+              demonstrate that TriFold achieves high-fidelity reconstruction and generation from a single image that
+              provides only a partial observation of the scene, validating its effectiveness for native 3D Gaussian
+              representation learning.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section">
+    <div class="container is-max-desktop section-title-tight">
+      <h2 class="title is-3">Overview</h2>
+      <div class="container container-wide has-text-centered">
+        <img class="overview-image figure-img" src="./assets/fig2_method.png" alt="TriFold method overview">
+        <p class="figure-caption">
+          The triplane encoder maps a variable-cardinality Gaussian set to a fixed-layout variational latent, and the
+          triplane decoder reconstructs spatially adaptive local Gaussian sets. The learned latent further supports
+          image- and point-cloud-conditioned scene generation with flow matching.
+        </p>
+      </div>
+      <div class="columns is-vcentered columns-offset-md">
+        <div class="column is-full-width">
+          <div class="content has-text-justified">
+            <p>
+              TriFold is a variational autoencoder that operates directly on native 3D Gaussian primitives. The
+              <b>triplane encoder</b> extracts context-aware primitive features with a point transformer (PTv3) and
+              projects them onto three orthogonal planes. Instead of pooling all primitives that collide in a cell
+              into a single vector, <i>Q</i> learned queries per cell aggregate them into multiple feature slots, and
+              a sparse cross-plane attention module exchanges information between corresponding cells before a
+              variational bottleneck produces the triplane latent.
+            </p>
+            <p>
+              The <b>triplane decoder</b> adopts a set-based decoding paradigm without rigid 3D discretization. An
+              occupancy predictor first localizes active regions; for each occupied voxel, a DETR-style set decoder
+              predicts Gaussian candidates, and entropy-regularized optimal transport matches them to the local target
+              set. The predefined query count only bounds local capacity — both the spatial allocation and the
+              per-voxel primitive count adapt to scene content. Gaussian centers are supervised through
+              optimal-transport matching, while the remaining geometric and appearance attributes are constrained by a
+              full-scene rendering loss.
+            </p>
+            <p>
+              On the frozen latent space, a conditional <b>latent flow-matching model</b> supports
+              point-cloud-conditioned synthesis from complete spatial observations and single-image-conditioned
+              amodal generation, inferring plausible geometry and appearance for unobserved regions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section">
+    <div class="container is-max-desktop section-title-tight">
+      <h2 class="title is-3">Scene Reconstruction</h2>
+      <div class="content has-text-justified">
+        <p>
+          We compare TriFold against Can3Tok, DiffGS, and GaussianGPT under the same scene-level training and
+          evaluation protocol. TriFold achieves the best results across all metrics, improving PSNR over GaussianGPT
+          by <b>5.15 dB</b> while reducing LPIPS and Chamfer Distance.
+        </p>
+      </div>
+
+      <div id="interactive-recon">
+        <h3 class="title is-4">Interactive Viewer: VAE Reconstruction</h3>
+        <div class="content has-text-justified">
+          <p>
+            Compare the <b>ground-truth scene-level 3DGS</b> against the <b>TriFold VAE reconstruction</b>
+            interactively. Pick a scene on the left, toggle the variant on the right. The viewer loads on demand
+            (compressed PLY, 11&ndash;36&nbsp;MB per model). Drag to orbit, scroll to zoom, right-drag to pan.
+          </p>
+        </div>
+
+        <div
+          style="display:flex;justify-content:center;gap:18px;flex-wrap:wrap;align-items:center;margin-bottom:0.75rem;">
+          <div style="display:flex;gap:10px;">
+            <button class="recon-thumb" data-scene="recon_200"
+              style="padding:0;border:2px solid #c2571f;border-radius:6px;overflow:hidden;cursor:pointer;background:none;line-height:0;width:180px;">
+              <img src="./assets/splats/thumb_recon_200.jpg" alt="Reconstruction scene 200" loading="lazy"
+                decoding="async" width="640" height="400" style="display:block;width:100%;">
+            </button>
+            <button class="recon-thumb" data-scene="recon_342"
+              style="padding:0;border:2px solid #d8d2c4;border-radius:6px;overflow:hidden;cursor:pointer;background:none;line-height:0;width:180px;">
+              <img src="./assets/splats/thumb_recon_342.jpg" alt="Reconstruction scene 342" loading="lazy"
+                decoding="async" width="640" height="400" style="display:block;width:100%;">
+            </button>
+          </div>
+          <div class="buttons has-addons" style="margin-bottom:0;">
+            <button class="button is-small recon-variant" data-variant="gt">Ground Truth</button>
+            <button class="button is-small recon-variant is-dark" data-variant="ours">TriFold (Ours)</button>
+          </div>
+        </div>
+
+        <div id="recon-viewer"
+          style="width:100%;height:560px;border:1px solid #333;border-radius:6px;position:relative;overflow:hidden;background:#141414;">
+          <div id="recon-overlay"
+            style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#ddd;font-size:1.05rem;background:rgba(20,20,20,0.85);z-index:5;">
+            ▶ Click to load the interactive reconstruction viewer
+          </div>
+        </div>
+        <p class="figure-caption has-text-centered">
+          The TriFold VAE reconstruction preserves layout, appearance, and fine-grained structures of the ground-truth
+          scene. Camera starts at the same viewpoint used in the comparison videos below.
+        </p>
+      </div>
+      <br />
+
+      <div class="has-text-centered">
+        <table class="table results is-bordered is-striped is-hoverable">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>PSNR &uarr;</th>
+              <th>SSIM &uarr;</th>
+              <th>LPIPS &darr;</th>
+              <th>CD (&times;10<sup>3</sup>) &darr;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Can3Tok</td>
+              <td>4.53</td>
+              <td>0.012</td>
+              <td>0.920</td>
+              <td>10.96</td>
+            </tr>
+            <tr>
+              <td>DiffGS</td>
+              <td>12.43</td>
+              <td>0.719</td>
+              <td>0.374</td>
+              <td>3.21</td>
+            </tr>
+            <tr>
+              <td>GaussianGPT</td>
+              <td><u>21.40</u></td>
+              <td><u>0.856</u></td>
+              <td><u>0.157</u></td>
+              <td><u>2.62</u></td>
+            </tr>
+            <tr>
+              <td><b>TriFold (Ours)</b></td>
+              <td><b>26.55</b></td>
+              <td><b>0.913</b></td>
+              <td><b>0.088</b></td>
+              <td><b>2.23</b></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="figure-caption">
+          Quantitative comparison with existing 3D Gaussian representation methods. Best results are in bold,
+          second-best are underlined.
+        </p>
+      </div>
+      <br />
+
+      <div class="has-text-centered">
+        <img src="./assets/fig3_recon.png" class="figure-img" alt="Qualitative VAE reconstruction comparison"
+          loading="lazy" decoding="async" width="840" height="402">
+        <p class="figure-caption">
+          Qualitative VAE reconstruction comparison. Compared with GaussianGPT, TriFold better captures scene geometry
+          and appearance.
+        </p>
+      </div>
+      <br />
+
+      <div class="has-text-centered">
+        <video class="lazy-video" controls muted loop playsinline preload="none"
+          style="width:100%;max-width:960px;border:1px solid #eee;border-radius:6px;">
+          <source data-src="./assets/vae_recon_0_and_200.mp4" type="video/mp4">
+        </video>
+        <p class="figure-caption">
+          VAE reconstruction demo (GT | TriFold (Ours) | GaussianGPT).
+        </p>
+      </div>
+      <br />
+
+      <div class="has-text-centered">
+        <video class="lazy-video" controls muted loop playsinline preload="none"
+          style="width:100%;max-width:960px;border:1px solid #eee;border-radius:6px;">
+          <source data-src="./assets/vae_recon_302_and_342.mp4" type="video/mp4">
+        </video>
+        <p class="figure-caption">
+          VAE reconstruction demo (GT | TriFold (Ours) | GaussianGPT).
+        </p>
+      </div>
+      <br />
+
+      <div class="has-text-centered">
+        <img src="./assets/fig4_allocation.png" class="figure-img" alt="Adaptive 3DGS allocation"
+          loading="lazy" decoding="async" width="2400" height="1533">
+        <p class="figure-caption">
+          Adaptive 3DGS allocation. The decoder retains a content-dependent number of Gaussians per occupied voxel
+          (heatmap, right), instead of a fixed per-cell budget.
+        </p>
+      </div>
+      <br />
+
+      <div class="has-text-centered">
+        <img src="./assets/fig8_more_recon.png" class="figure-img" alt="Additional VAE reconstructions"
+          loading="lazy" decoding="async" width="835" height="590">
+        <p class="figure-caption">
+          Additional VAE reconstructions. Under the identical evaluation setup, TriFold preserves more visible layout,
+          appearance, and fine-grained local structures.
+        </p>
+      </div>
+      <br />
+
+      <div class="has-text-centered">
+        <img src="./assets/fig9_failure_case.png" class="figure-img" alt="Baseline failure cases"
+          loading="lazy" decoding="async" width="2400" height="1237">
+        <p class="figure-caption">
+          Representative reconstruction failures of the adapted Can3Tok and DiffGS baselines. Under the same
+          scene-level training split and optimization budget, distinct input scenes can be reconstructed as similar
+          low-detail structures.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section is-light">
+    <div class="container is-max-desktop section-title-tight">
+      <h2 class="title is-3">Scene Generation</h2>
+      <div class="content has-text-justified">
+        <p>
+          Built on the TriFold latent space, a latent flow-matching model supports two conditioning settings:
+          <b>point-cloud-conditioned synthesis</b> from complete spatial observations, and
+          <b>single-image-conditioned amodal generation</b>, where a single image provides only a partial observation
+          of the scene.
+        </p>
+      </div>
+
+      <div id="interactive-viewer">
+        <h3 class="title is-4">Interactive Viewer: Generated 3DGS</h3>
+        <div class="content has-text-justified">
+          <p>
+            Explore 3DGS scenes <b>generated by TriFold from a single input image</b> directly in your browser. Click a
+            thumbnail below to load the corresponding scene (compressed PLY, 28&ndash;52&nbsp;MB; first load takes a
+            few seconds). Drag to orbit, scroll to zoom, right-drag to pan. The thumbnails show the conditioning input
+            images.
+          </p>
+        </div>
+
+        <div id="splat-viewer"
+          style="width:100%;height:560px;border:1px solid #333;border-radius:6px;position:relative;overflow:hidden;background:#141414;">
+          <div id="splat-overlay"
+            style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#ddd;font-size:1.05rem;background:rgba(20,20,20,0.85);z-index:5;">
+            ▶ Click to load the interactive generated-scene viewer
+          </div>
+        </div>
+
+        <div id="splat-gallery"
+          style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px;">
+          <button class="splat-thumb" data-scene="gen_0071"
+            style="padding:0;border:2px solid #c2571f;border-radius:6px;overflow:hidden;cursor:pointer;background:none;line-height:0;">
+            <img src="./assets/splats/thumb_0071.jpg" alt="Input image of generated scene 0071" loading="lazy"
+              decoding="async" width="640" height="360" style="display:block;width:100%;">
+          </button>
+          <button class="splat-thumb" data-scene="gen_0250"
+            style="padding:0;border:2px solid #d8d2c4;border-radius:6px;overflow:hidden;cursor:pointer;background:none;line-height:0;">
+            <img src="./assets/splats/thumb_0250.jpg" alt="Input image of generated scene 0250" loading="lazy"
+              decoding="async" width="640" height="360" style="display:block;width:100%;">
+          </button>
+          <button class="splat-thumb" data-scene="gen_0015"
+            style="padding:0;border:2px solid #d8d2c4;border-radius:6px;overflow:hidden;cursor:pointer;background:none;line-height:0;">
+            <img src="./assets/splats/thumb_0015.jpg" alt="Input image of generated scene 0015" loading="lazy"
+              decoding="async" width="640" height="360" style="display:block;width:100%;">
+          </button>
+          <button class="splat-thumb" data-scene="gen_0069"
+            style="padding:0;border:2px solid #d8d2c4;border-radius:6px;overflow:hidden;cursor:pointer;background:none;line-height:0;">
+            <img src="./assets/splats/thumb_0069.jpg" alt="Input image of generated scene 0069" loading="lazy"
+              decoding="async" width="640" height="360" style="display:block;width:100%;">
+          </button>
+        </div>
+        <p class="figure-caption has-text-centered">
+          Scene-level 3DGS generated by TriFold (465K&ndash;849K Gaussians each, full spherical harmonics), rendered
+          in-browser with GaussianSplats3D. Thumbnails are the single conditioning images.
+        </p>
+      </div>
+      <br />
+
+      <h3 class="title is-4">Point-Cloud-Conditioned Generation</h3>
+      <div class="has-text-centered">
+        <img src="./assets/fig5_pcgen.png" class="figure-img" alt="Point-cloud-conditioned generation"
+          loading="lazy" decoding="async" width="2400" height="897">
+        <p class="figure-caption">
+          Point-cloud-conditioned generation. Given a full point cloud, the latent flow model generates native 3DGS
+          with coherent geometry and appearance across novel views.
+        </p>
+      </div>
+      <br />
+
+      <div class="has-text-centered">
+        <img src="./assets/fig13_more_pcgen.png" class="figure-img" alt="Additional point-cloud-conditioned generations"
+          loading="lazy" decoding="async" width="2400" height="1156">
+        <p class="figure-caption">
+          Additional point-cloud-conditioned generations. Each panel shows a Gaussian scene sampled from a different
+          point-cloud condition, illustrating the diversity of generated indoor layouts and scene content.
+        </p>
+      </div>
+      <br />
+
+      <h3 class="title is-4">Single-Image-Conditioned Amodal Generation</h3>
+      <div class="columns is-centered is-variable is-4">
+        <div class="column is-half has-text-centered">
+          <video class="lazy-video" controls muted loop playsinline preload="none"
+            style="width:100%;border:1px solid #eee;border-radius:6px;">
+            <source data-src="./assets/image_0071_0250.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-half has-text-centered">
+          <video class="lazy-video" controls muted loop playsinline preload="none"
+            style="width:100%;border:1px solid #eee;border-radius:6px;">
+            <source data-src="./assets/img2gs_0015_0069.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+      <p class="figure-caption has-text-centered">
+        Single-image-conditioned scene generation demos (Input Image | TriFold (Ours)).
+      </p>
+    </div>
+  </section>
+
+
+  <script src="./static/js/more-research.js"></script>
+  <script>
+    loadMoreResearchDropdown({
+      mountId: "moreResearchDropdown",
+      jsonUrl: "https://raw.githubusercontent.com/Fantasy-AMAP/.github/refs/heads/main/profile/research.json"
+    });
+  </script>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.161.0/build/three.module.js"
+      }
+    }
+  </script>
+  <script type="module">
+    let gaussianModulePromise = null;
+    function getGaussianModule() {
+      if (!gaussianModulePromise) {
+        gaussianModulePromise = import('./static/js/gaussian-splats-3d.module.js');
+      }
+      return gaussianModulePromise;
+    }
+
+    const SPLAT_SCENES = {
+      gen_0071: {
+        url: './assets/splats/gen_0071.ply',
+        position: [0.380, 0.374, 0.033],
+        lookAt: [0.156, -0.014, -0.007]
+      },
+      gen_0250: {
+        url: './assets/splats/gen_0250.ply',
+        position: [0.379, -0.099, 0.082],
+        lookAt: [-0.060, -0.099, 0.043]
+      },
+      gen_0015: {
+        url: './assets/splats/gen_0015.ply',
+        position: [0.475, -0.066, 0.050],
+        lookAt: [0.026, -0.066, 0.010]
+      },
+      gen_0069: {
+        url: './assets/splats/gen_0069.ply',
+        position: [0.307, 0.299, 0.035],
+        lookAt: [0.133, -0.003, 0.004]
+      }
+    };
+
+    const splatContainer = document.getElementById('splat-viewer');
+    const splatOverlay = document.getElementById('splat-overlay');
+    let splatViewer = null;
+    let splatStarted = false;
+    let loadToken = 0;
+
+    function startSplat() {
+      if (!splatStarted) {
+        splatStarted = true;
+        splatOverlay.remove();
+      }
+    }
+
+    async function showSplatScene(key) {
+      const cfg = SPLAT_SCENES[key];
+      if (!cfg) return;
+      const token = ++loadToken;
+      const GaussianSplats3D = await getGaussianModule();
+      if (token !== loadToken) return;
+
+      document.querySelectorAll('.splat-thumb').forEach(b => {
+        b.style.borderColor = (b.dataset.scene === key) ? '#c2571f' : '#d8d2c4';
+      });
+
+      if (splatViewer) {
+        try { splatViewer.dispose(); } catch (e) { /* ignore */ }
+        splatViewer = null;
+        splatContainer.innerHTML = '';
+      }
+
+      const viewer = new GaussianSplats3D.Viewer({
+        rootElement: splatContainer,
+        cameraUp: [0, 0, 1],
+        initialCameraPosition: cfg.position,
+        initialCameraLookAt: cfg.lookAt,
+        sharedMemoryForWorkers: false,
+        gpuAcceleratedSort: false
+      });
+      viewer.camera.near = 0.01;
+      viewer.camera.updateProjectionMatrix();
+      splatViewer = viewer;
+      try {
+        await viewer.addSplatScene(cfg.url, { showLoadingUI: true, progressiveLoad: true });
+        if (token !== loadToken) { try { viewer.dispose(); } catch (e) { /* ignore */ } return; }
+        viewer.start();
+      } catch (err) {
+        console.error('Failed to load splat scene:', err);
+      }
+    }
+
+    splatOverlay.addEventListener('click', () => { startSplat(); showSplatScene('gen_0071'); });
+    document.querySelectorAll('.splat-thumb').forEach(b => {
+      b.addEventListener('click', () => { startSplat(); showSplatScene(b.dataset.scene); });
+    });
+
+    // --- reconstruction viewer (loads on demand) ---
+    const RECON_SCENES = {
+      recon_200: {
+        gt: './assets/splats/recon_200_gt.ply',
+        ours: './assets/splats/recon_200_ours.ply',
+        position: [-0.026, -0.674, 0.018],
+        lookAt: [-0.026, 0.020, -0.018]
+      },
+      recon_342: {
+        gt: './assets/splats/recon_342_gt.ply',
+        ours: './assets/splats/recon_342_ours.ply',
+        position: [-0.001, -0.669, 0.085],
+        lookAt: [-0.001, -0.011, 0.051]
+      }
+    };
+    let reconScene = 'recon_200';
+    let reconVariant = 'ours';
+    let reconViewer = null;
+    let reconStarted = false;
+    let reconToken = 0;
+    const reconContainer = document.getElementById('recon-viewer');
+    const reconOverlay = document.getElementById('recon-overlay');
+
+    function startRecon() {
+      if (!reconStarted) {
+        reconStarted = true;
+        reconOverlay.remove();
+      }
+    }
+
+    async function showReconScene() {
+      const cfg = RECON_SCENES[reconScene];
+      if (!cfg) return;
+      const token = ++reconToken;
+      const GaussianSplats3D = await getGaussianModule();
+      if (token !== reconToken) return;
+
+      document.querySelectorAll('.recon-thumb').forEach(b => {
+        b.style.borderColor = (b.dataset.scene === reconScene) ? '#c2571f' : '#d8d2c4';
+      });
+      document.querySelectorAll('.recon-variant').forEach(b => {
+        b.classList.toggle('is-dark', b.dataset.variant === reconVariant);
+      });
+
+      if (reconViewer) {
+        try { reconViewer.dispose(); } catch (e) { /* ignore */ }
+        reconViewer = null;
+        reconContainer.innerHTML = '';
+      }
+
+      const viewer = new GaussianSplats3D.Viewer({
+        rootElement: reconContainer,
+        cameraUp: [0, 0, 1],
+        initialCameraPosition: cfg.position,
+        initialCameraLookAt: cfg.lookAt,
+        sharedMemoryForWorkers: false,
+        gpuAcceleratedSort: false
+      });
+      viewer.camera.near = 0.01;
+      viewer.camera.updateProjectionMatrix();
+      reconViewer = viewer;
+      try {
+        await viewer.addSplatScene(cfg[reconVariant], { showLoadingUI: true, progressiveLoad: true });
+        if (token !== reconToken) { try { viewer.dispose(); } catch (e) { /* ignore */ } return; }
+        viewer.start();
+      } catch (err) {
+        console.error('Failed to load recon scene:', err);
+      }
+    }
+
+    reconOverlay.addEventListener('click', () => { startRecon(); showReconScene(); });
+    document.querySelectorAll('.recon-thumb').forEach(b => {
+      b.addEventListener('click', () => { reconScene = b.dataset.scene; startRecon(); showReconScene(); });
+    });
+    document.querySelectorAll('.recon-variant').forEach(b => {
+      b.addEventListener('click', () => { reconVariant = b.dataset.variant; startRecon(); showReconScene(); });
+    });
+  </script>
+</body>
+
+</html>
